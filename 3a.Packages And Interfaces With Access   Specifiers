@@ -1,0 +1,102 @@
+import java.util.Scanner;
+
+interface Shape {
+    double calculateArea();
+    void displayDetails();
+}
+
+class Circle implements Shape {
+    private double radius;
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+    @Override
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+    @Override
+    public void displayDetails() {
+        System.out.println("\nCircle:");
+        System.out.println("Radius = " + radius);
+        System.out.println("Area of Circle = " + calculateArea());
+    }
+}
+
+class Rectangle implements Shape {
+    private double length;
+    private double width;
+    public Rectangle(double length, double width) {
+        this.length = length;
+        this.width = width;
+    }
+    @Override
+    public double calculateArea() {
+        return length * width;
+    }
+    @Override
+    public void displayDetails() {
+        System.out.println("\nRectangle:");
+        System.out.println("Length = " + length + ", Width = " + width);
+        System.out.println("Area of Rectangle = " + calculateArea());
+    }
+}
+
+class Triangle implements Shape {
+    private double base;
+    private double height;
+    public Triangle(double base, double height) {
+        this.base = base;
+        this.height = height;
+    }
+    @Override
+    public double calculateArea() {
+        return 0.5 * base * height;
+    }
+    @Override
+    public void displayDetails() {
+        System.out.println("\nTriangle:");
+        System.out.println("Base = " + base + ", Height = " + height);
+        System.out.println("Area of Triangle = " + calculateArea());
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("----- Shape Area Calculator -----");
+        System.out.println("Choose a shape: 1.Circle  2.Rectangle  3.Triangle");
+        int choice = sc.nextInt();
+
+        Shape shape = null;
+
+        switch (choice) {
+            case 1:
+                System.out.print("Enter radius: ");
+                double radius = sc.nextDouble();
+                shape = new Circle(radius);
+                break;
+            case 2:
+                System.out.print("Enter length: ");
+                double length = sc.nextDouble();
+                System.out.print("Enter width: ");
+                double width = sc.nextDouble();
+                shape = new Rectangle(length, width);
+                break;
+            case 3:
+                System.out.print("Enter base: ");
+                double base = sc.nextDouble();
+                System.out.print("Enter height: ");
+                double height = sc.nextDouble();
+                shape = new Triangle(base, height);
+                break;
+            default:
+                System.out.println("Invalid choice!");
+        }
+
+        if (shape != null) {
+            shape.displayDetails();
+        }
+
+        sc.close();
+    }
+}
