@@ -1,0 +1,157 @@
+import java.util.*;
+
+abstract class Piece {
+    protected String color; // "White" or "Black"
+    protected String name;
+
+    public Piece(String color, String name) {
+        this.color = color;
+        this.name = name;
+    }
+
+    public String getColor() { return color; }
+    public String getName() { return name; }
+
+    public abstract boolean isValidMove(int sx, int sy, int ex, int ey, Piece[][] board);
+}
+
+class Pawn extends Piece {
+    public Pawn(String color) { super(color, "Pawn"); }
+    @Override
+    public boolean isValidMove(int sx, int sy, int ex, int ey, Piece[][] board) {
+        int dir = color.equals("White") ? -1 : 1;
+        // Normal move
+        if (ey == sy && board[ex][ey] == null) {
+            if (ex == sx + dir) return true;
+            // First move double step
+            if ((color.equals("White") && sx == 6 && ex == 4) ||
+                (color.equals("Black") && sx == 1 && ex == 3)) return true;
+        }
+        // Capture
+        if (Math.abs(ey - sy) == 1 && ex == sx + dir && board[ex][ey] != null &&
+            !board[ex][ey].getColor().equals(color)) return true;
+        return false;
+    }
+}
+
+class Rook extends Piece {
+    public Rook(String color) { super(color, "Rook"); }
+    @Override
+    public boolean isValidMove(int sx, int sy, int ex, int ey, Piece[][] board) {
+        if (sx != ex && sy != ey) return false;
+        // Check path clear
+        if (sx == ex) {
+            int step = sy < ey ? 1 : -1;
+            for (int j = sy + step; j != ey; j += step)
+                if (board[sx][j] != null) return false;
+        } else {
+            int step = sx < ex ? 1 : -1;
+            for (int i = sx + step; i != ex; i += step)
+                if (board[i][sy] != null) return false;
+        }
+        return board[ex][ey] == null || !board[ex][ey].getColor().equals(color);
+    }
+}
+
+class Knight extends Piece {
+    public Knight(String color) { super(color, "Knight"); }
+    @Override
+    public boolean isValidMove(int sx, int sy, int ex, int ey, Piece[][] board) {
+        int dx = Math.abs(ex - sx), dy = Math.abs(ey - sy);
+        return (dx == 2 && dy == 1 || dx == 1 && dy == 2) &&
+               (board[ex][ey] == null || !board[ex][ey].getColor().equals(color));
+    }
+}
+
+class King extends Piece {
+    public King(String color) { super(color, "King"); }
+    @Override
+    public boolean isValidMove(int sx, int sy, int ex, int ey, Piece[][] board) {
+        int dx = Math.abs(ex - sx), dy = Math.abs(ey - sy);
+        return dx <= 1 && dy <= 1 &&
+               (board[ex][ey] == null || !board[ex][ey].getColor().equals(color));
+    }
+}
+
+class ChessBoard {
+    private Piece[][] board = new Piece[8][8];
+    private String turn = "White";
+
+    public ChessBoard() { setupBoard(); }
+
+    private void setupBoard() {
+        // Pawns
+        for (int j = 0; j < 8; j++) {
+            board[1][j] = new Pawn("Black");
+            board[6][j] = new Pawn("White");
+        }
+        // Rooks
+        board[0][0] = new Rook("Black"); board[0][7] = new Rook("Black");
+        board[7][0] = new Rook("White"); board[7][7] = new Rook("White");
+        // Knights
+        board[0][1] = new Knight("Black"); board[0][6] = new Knight("Black");
+        board[7][1] = new Knight("White"); board[7][6] = new Knight("White");
+        // Kings
+        board[0][4] = new King("Black");
+        board[7][4] = new King("White");
+        // (You can add Bishops/Queen similarly)
+    }
+
+    public void displayBoard() {
+        for (int i = 0; i < 8; i++) {
+            System.out.print((8 - i) + " ");
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] == null) System.out.print(". ");
+                else {
+                    String symbol = board[i][j].getName().substring(0,1);
+                    if (board[i][j].getName().equals("Knight")) symbol = "N";
+                    if (board[i][j].getName().equals("King")) symbol = "K";
+                    System.out.print(board[i][j].getColor().equals("White") ? symbol.toUpperCase()+" " : symbol.toLowerCase()+" ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("  a b c d e f g h");
+    }
+
+    private int[] parsePos(String pos) {
+        int col = pos.charAt(0) - 'a';
+        int row = 8 - Character.getNumericValue(pos.charAt(1));
+        return new int[]{row, col};
+    }
+
+    public void makeMove(String from, String to) {
+        int[] s = parsePos(from), e = parsePos(to);
+        Piece p = board[s[0]][s[1]];
+        if (p == null || !p.getColor().equals(turn)) {
+            System.out.println("Error: Not your piece!");
+            return;
+        }
+        if (p.isValidMove(s[0], s[1], e[0], e[1], board)) {
+            board[e[0]][e[1]] = p;
+            board[s[0]][s[1]] = null;
+            System.out.println(p.getName() + " moved from " + from + " to " + to + ".");
+            turn = turn.equals("White") ? "Black" : "White";
+        } else {
+            System.out.println("Invalid move attempt!");
+        }
+    }
+
+    public String getTurn() { return turn; }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ChessBoard game = new ChessBoard();
+        game.displayBoard();
+
+        while (true) {
+            System.out.println(game.getTurn() + "'s turn.");
+            System.out.print("Enter move (e.g., e2 e4): ");
+            String from = sc.next(), to = sc.next();
+            game.makeMove(from, to);
+            game.displayBoard();
+        }
+    }
+}
