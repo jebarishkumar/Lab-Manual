@@ -1,0 +1,68 @@
+import java.util.*;
+
+class Box<T> {
+    private T value;
+
+    public Box(T value) {
+        this.value = value;
+    }
+
+    public T getValue() { return value; }
+
+    public void showType() {
+        System.out.println("Type of stored item : " + value.getClass().getName());
+    }
+}
+
+class KeyValue<K, V> {
+    private K key;
+    private V value;
+
+    public KeyValue(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return key + " = " + value;
+    }
+}
+
+class GenericUtils {
+    // Generic method with bounded type parameter
+    public static <T extends Comparable<T>> T findMax(List<T> list) {
+        return list.stream().max(Comparator.naturalOrder()).orElse(null);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Generic Box with Integer
+        Box<Integer> intBox = new Box<>(100);
+        System.out.println("Integer Box Value : " + intBox.getValue());
+        intBox.showType();
+
+        // Generic Box with String
+        Box<String> strBox = new Box<>("Hello Generics");
+        System.out.println("String Box Value : " + strBox.getValue());
+        strBox.showType();
+
+        // Key-Value pairs
+        System.out.println("---- Key-Value Pairs ----");
+        KeyValue<String, Integer> kv1 = new KeyValue<>("Rahul", 88);
+        KeyValue<Integer, String> kv2 = new KeyValue<>(101, "CSE");
+        System.out.println(kv1);
+        System.out.println(kv2);
+
+        // Using bounded generic method
+        List<Integer> numbers = Arrays.asList(45, 67, 89, 23);
+        System.out.println("Maximum Number : " + GenericUtils.findMax(numbers));
+
+        List<String> names = Arrays.asList("Rahul", "Sneha", "Kiran");
+        System.out.println("Maximum (Alphabetical) : " + GenericUtils.findMax(names));
+
+        List<Double> marks = Arrays.asList(85.5, 92.3, 78.9);
+        System.out.println("Maximum Marks : " + GenericUtils.findMax(marks));
+    }
+}
