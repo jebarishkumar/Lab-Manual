@@ -1,0 +1,90 @@
+import java.util.*;
+import java.util.stream.*;
+
+class Employee {
+    int id;
+    String name;
+    String dept;
+    double salary;
+
+    public Employee(int id, String name, String dept, double salary) {
+        this.id = id;
+        this.name = name;
+        this.dept = dept;
+        this.salary = salary;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDept() { return dept; }
+    public double getSalary() { return salary; }
+
+    @Override
+    public String toString() {
+        return id + " " + name + " " + dept + " " + salary;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        List<Employee> employees = Arrays.asList(
+            new Employee(101, "Rahul", "CSE", 55000),
+            new Employee(102, "Sneha", "ECE", 62000),
+            new Employee(103, "Kiran", "CSE", 48000),
+            new Employee(104, "Divya", "MECH", 51000),
+            new Employee(105, "Arjun", "ECE", 70000)
+        );
+
+        System.out.println("---- All Employees ----");
+        employees.forEach(System.out::println);
+
+        // Filter + Sort
+        System.out.println("---- Salary Above 50000 (High to Low) ----");
+        employees.stream()
+                 .filter(e -> e.getSalary() > 50000)
+                 .sorted(Comparator.comparingDouble(Employee::getSalary).reversed())
+                 .forEach(e -> System.out.println(e.getName() + " -> " + e.getSalary()));
+
+        // Map names
+        System.out.println("---- Employee Names ----");
+        List<String> names = employees.stream()
+                                      .map(Employee::getName)
+                                      .collect(Collectors.toList());
+        System.out.println(names);
+
+        // Group by department
+        System.out.println("---- Employees Grouped by Department ----");
+        Map<String, List<Employee>> grouped = employees.stream()
+                .collect(Collectors.groupingBy(Employee::getDept));
+        grouped.forEach((dept, list) -> {
+            System.out.print(dept + " : ");
+            System.out.println(list.stream().map(Employee::getName).collect(Collectors.toList()));
+        });
+
+        // Average salary per department
+        System.out.println("---- Average Salary per Department ----");
+        Map<String, Double> avgSalary = employees.stream()
+                .collect(Collectors.groupingBy(Employee::getDept,
+                        Collectors.averagingDouble(Employee::getSalary)));
+        avgSalary.forEach((dept, avg) -> System.out.printf("%s : %.2f%n", dept, avg));
+
+        // Total salary
+        double totalSalary = employees.stream()
+                .mapToDouble(Employee::getSalary).sum();
+        System.out.println("Total Salary Paid : " + totalSalary);
+
+        // Count employees in CSE
+        long cseCount = employees.stream()
+                .filter(e -> e.getDept().equals("CSE"))
+                .count();
+        System.out.println("Number of CSE Employees : " + cseCount);
+
+        // Highest paid employee
+        Employee highest = employees.stream()
+                .max(Comparator.comparingDouble(Employee::getSalary))
+                .orElse(null);
+        if (highest != null) {
+            System.out.println("Highest Paid : " + highest.getName() + " (" + highest.getSalary() + ")");
+        }
+    }
+}
